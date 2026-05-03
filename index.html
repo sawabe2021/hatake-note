@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>畑ノート</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html{width:100%;height:100%;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:#fff;color:#1a1a1a;min-height:100vh;margin:0;padding:0;width:100%;}
+.app{width:100%;max-width:480px;margin:0 auto;background:#fff;min-height:100vh;}
+@media (max-width:520px){
+  .app{max-width:100%;width:100%;}
+  body{background:#fff;}
+  .nav button{padding:0.6rem 0.4rem;font-size:10px;}
+  .screen{padding:0.75rem 0.75rem 5rem;}
+  .modal{border-radius:16px 16px 0 0;}
+  .wx-grid{grid-template-columns:repeat(3,1fr);gap:6px;}
+  .cal-grid7{gap:2px;}
+}
+.header{padding:1rem 1rem 0.75rem;background:#fff;border-bottom:1px solid #e8e8e0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.header-title{font-size:18px;font-weight:600;color:#1a1a1a;}
+.header-sub{font-size:11px;color:#999;margin-top:1px;}
+.nav{display:flex;background:#fff;border-bottom:1px solid #e8e8e0;overflow-x:auto;position:sticky;top:57px;z-index:10;}
+.nav::-webkit-scrollbar{display:none;}
+.nav button{flex:none;padding:0.65rem 0.75rem;font-size:11px;background:none;border:none;border-bottom:2px solid transparent;color:#888;cursor:pointer;white-space:nowrap;}
+.nav button.active{color:#2a7a5a;border-bottom-color:#2a7a5a;font-weight:600;}
+.screen{padding:0.875rem 1rem 5rem;display:none;}
+.screen.active{display:block;}
+.section-title{font-size:11px;font-weight:600;color:#999;margin:1.25rem 0 0.5rem;letter-spacing:0.06em;text-transform:uppercase;}
+.card{background:#fff;border:1px solid #e8e8e0;border-radius:12px;padding:0.875rem 1rem;margin-bottom:0.5rem;}
+.card-red{border-left:3px solid #c94040;}
+.card-warn{border-left:3px solid #d4870a;}
+.add-btn{width:100%;padding:0.75rem;background:none;border:1.5px dashed #ccc;border-radius:12px;color:#aaa;font-size:14px;cursor:pointer;}
+.add-btn:hover{border-color:#2a7a5a;color:#2a7a5a;}
+.submit-btn{width:100%;padding:0.7rem;background:#2a7a5a;border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;padding:0.6rem 0.75rem;border:1px solid #e0e0d8;border-radius:8px;font-size:14px;background:#fafaf8;color:#1a1a1a;margin-bottom:0.5rem;-webkit-appearance:none;appearance:none;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.75rem center;padding-right:2rem;}
+textarea{height:64px;resize:none;}
+.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding:0;}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:1.5rem 1.25rem 2rem;width:100%;max-width:480px;}
+.modal h2{font-size:17px;font-weight:600;margin-bottom:1rem;color:#1a1a1a;}
+.modal-btns{display:flex;gap:0.5rem;margin-top:0.75rem;}
+.modal-btns button{flex:1;padding:0.65rem;border-radius:10px;font-size:14px;cursor:pointer;}
+.btn-cancel{background:none;border:1px solid #ddd;color:#666;}
+.btn-save{background:#2a7a5a;border:none;color:#fff;font-weight:600;}
+.chip{display:inline-block;font-size:11px;padding:3px 9px;border-radius:99px;font-weight:500;}
+.chip-ok{background:#e6f4ee;color:#1f6b3e;}
+.chip-warn{background:#fef3e2;color:#8a5a00;}
+.chip-alert{background:#fdeaea;color:#9a2020;}
+.chip-safe{background:#e6f4ee;color:#1f6b3e;}
+.chip-ban{background:#fdeaea;color:#9a2020;}
+.wx-big{display:flex;align-items:center;gap:1rem;background:#f5f9f7;border-radius:16px;padding:1rem 1.25rem;margin-bottom:0.75rem;}
+.wx-temp{font-size:36px;font-weight:700;color:#1a1a1a;}
+.wx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0.75rem;}
+.wx-cell{background:#f5f9f7;border-radius:10px;padding:0.6rem;text-align:center;}
+.wx-cell .v{font-size:16px;font-weight:600;color:#1a1a1a;}
+.wx-cell .l{font-size:10px;color:#999;margin-top:2px;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;}
+.cal-nav-btn{background:none;border:1px solid #e0e0d8;border-radius:8px;padding:5px 12px;color:#666;cursor:pointer;font-size:14px;}
+.cal-grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-label{text-align:center;font-size:10px;color:#aaa;padding:4px 0;}
+.cal-day{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#555;cursor:pointer;position:relative;}
+.cal-day:hover{background:#f0f0ea;}
+.cal-day.today{background:#e6f4ee;color:#1f6b3e;font-weight:700;}
+.cal-day.pest-ban{background:#fdeaea;color:#9a2020;}
+.cal-day.pest-ban.today{background:#f7c1c1;color:#7a1515;}
+.cal-dot{width:4px;height:4px;border-radius:50%;background:#2a7a5a;position:absolute;bottom:3px;left:50%;transform:translateX(-50%);}
+.loading{text-align:center;padding:2rem;color:#999;font-size:14px;}
+.sync-badge{font-size:11px;color:#2a7a5a;}
+.error-badge{font-size:11px;color:#c94040;}
+.temp-bar-bg{background:#f0ede6;border-radius:4px;height:8px;margin:8px 0 6px;overflow:hidden;}
+.temp-bar-fill{height:8px;background:linear-gradient(90deg,#ef9f27,#d85a30);border-radius:4px;transition:width 0.5s;}
+.tl-line{position:absolute;left:7px;top:0;bottom:0;width:2px;background:#e8e8e0;border-radius:1px;}
+.tl-dot{position:absolute;left:-13px;top:4px;width:10px;height:10px;border-radius:50%;background:#2a7a5a;border:2px solid #fff;box-shadow:0 0 0 2px #2a7a5a;}
+.ms-icon-done{background:#e6f4ee;}
+.ms-icon-todo{background:#f5f5f0;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <div class="header-title">🌱 畑ノート</div>
+      <div class="header-sub">家庭菜園管理</div>
+    </div>
+    <div id="sync-status" class="sync-badge">読み込み中...</div>
+  </div>
+  <nav class="nav">
+    <button class="active" onclick="showScreen('home')">☀️ 天気</button>
+    <button onclick="showScreen('crops')">🌿 作物</button>
+    <button onclick="showScreen('log')">📋 ログ</button>
+    <button onclick="showScreen('calendar')">📅 カレンダー</button>
+    <button onclick="showScreen('pest')">🐛 病害虫</button>
+    <button onclick="showScreen('growth')">🌸 生育</button>
+  </nav>
+
+  <!-- 天気 -->
+  <div id="home" class="screen active">
+    <div id="wx-loading" class="loading">天気データを取得中...</div>
+    <div id="wx-content" style="display:none;">
+      <div class="wx-big">
+        <div style="font-size:40px;" id="wx-icon">☀️</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;color:#888;">茨城県土浦市</div>
+          <div style="font-size:15px;font-weight:500;" id="wx-desc">--</div>
+        </div>
+        <div class="wx-temp"><span id="wx-temp">--</span>°C</div>
+      </div>
+      <div class="wx-grid">
+        <div class="wx-cell"><div class="v" id="wx-high">--</div><div class="l">最高°C</div></div>
+        <div class="wx-cell"><div class="v" id="wx-low">--</div><div class="l">最低°C</div></div>
+        <div class="wx-cell"><div class="v" id="wx-humid">--</div><div class="l">湿度%</div></div>
+        <div class="wx-cell"><div class="v" id="wx-rain">--</div><div class="l">降水mm</div></div>
+        <div class="wx-cell"><div class="v" id="wx-wind">--</div><div class="l">風速m/s</div></div>
+        <div class="wx-cell"><div class="v" id="wx-sun">--</div><div class="l">日照h</div></div>
+      </div>
+    </div>
+    <div class="section-title">今日のおすすめ作業</div>
+    <div id="today-tasks"></div>
+  </div>
+
+  <!-- 作物 -->
+  <div id="crops" class="screen">
+    <div class="section-title">育てている作物</div>
+    <div id="crop-list"></div>
+    <button class="add-btn" onclick="openModal('crop-modal')">＋ 作物を追加</button>
+  </div>
+
+  <!-- 作業ログ -->
+  <div id="log" class="screen">
+    <div class="card" style="margin-bottom:0.75rem;">
+      <select id="log-type">
+        <option value="teishow">🌱 定植</option>
+        <option value="water">💧 水やり</option>
+        <option value="fert">🌿 施肥</option>
+        <option value="seishi">✂️ 整枝</option>
+        <option value="harvest">🧺 収穫</option>
+        <option value="other">📝 その他</option>
+      </select>
+      <select id="log-crop-sel"></select>
+      <input type="date" id="log-date">
+      <textarea id="log-note" placeholder="メモ"></textarea>
+      <button class="submit-btn" onclick="addLog()">記録する</button>
+    </div>
+    <div class="section-title">作業記録</div>
+    <div id="log-crop-tabs" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:0.75rem;"></div>
+    <div id="log-list"></div>
+  </div>
+
+  <!-- カレンダー -->
+  <div id="calendar" class="screen">
+    <div class="cal-header">
+      <button class="cal-nav-btn" onclick="prevMonth()">&#8249;</button>
+      <span id="cal-title" style="font-size:16px;font-weight:600;"></span>
+      <button class="cal-nav-btn" onclick="nextMonth()">&#8250;</button>
+    </div>
+    <div id="cal-legend"></div>
+    <div class="cal-grid7" id="cal-labels"></div>
+    <div class="cal-grid7" id="cal-days" style="margin-top:3px;margin-bottom:0.75rem;"></div>
+    <div class="section-title">収穫NG期間（進行中）</div>
+    <div id="ban-list" style="margin-bottom:0.75rem;"></div>
+    <div class="section-title">この月の農薬散布記録</div>
+    <div id="agri-log-list" style="margin-bottom:0.75rem;"></div>
+    <div class="section-title">予定</div>
+    <div id="plan-list"></div>
+    <button class="add-btn" onclick="openModal('plan-modal')">＋ 予定を追加</button>
+  </div>
+
+  <!-- 病害虫 -->
+  <div id="pest" class="screen">
+    <div class="section-title">病害虫メモ</div>
+    <div id="pest-list"></div>
+    <div class="section-title">農薬使用記録</div>
+    <div id="agri-list"></div>
+    <button class="add-btn" onclick="openModal('pest-modal')">＋ 病害虫・農薬を記録</button>
+  </div>
+
+  <!-- 生育記録 -->
+  <div id="growth" class="screen">
+    <div id="growth-crop-sel" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:0.75rem;"></div>
+    <div id="growth-temp-section" style="display:none;">
+      <div class="section-title" id="growth-temp-title">積算温度</div>
+      <div style="background:#fff8f0;border:1px solid #f5d5a0;border-radius:12px;padding:0.875rem 1rem;margin-bottom:0.5rem;">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2px;">
+          <div>
+            <div style="font-size:26px;font-weight:700;color:#d4870a;line-height:1;" id="growth-temp-acc">--C</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;" id="growth-temp-range">目標 --C</div>
+          </div>
+          <div style="font-size:15px;font-weight:600;color:#d4870a;" id="growth-temp-pct">--%</div>
+        </div>
+        <div class="temp-bar-bg"><div class="temp-bar-fill" id="growth-temp-bar" style="width:0%;"></div></div>
+        <div id="growth-temp-msg" style="font-size:13px;color:#888;"></div>
+        <div id="growth-forecast" style="display:none;background:#fff;border:1px solid #f5d5a0;border-radius:10px;padding:0.75rem;margin-top:0.75rem;font-size:13px;color:#8a5a00;line-height:1.6;"></div>
+      </div>
+    </div>
+    <div class="section-title">生育マイルストーン</div>
+    <div class="card"><div id="growth-milestones"></div></div>
+    <div class="section-title">記録タイムライン</div>
+    <div id="growth-timeline" style="position:relative;padding-left:20px;margin-bottom:0.5rem;"></div>
+    <button class="add-btn" onclick="openGrowthModal()">＋ 生育イベントを記録</button>
+  </div>
+</div>
+
+<!-- モーダル: 作物追加 -->
+<div id="crop-modal" class="modal-bg" style="display:none;" onclick="bgClose(event,'crop-modal')">
+  <div class="modal">
+    <h2>作物を追加</h2>
+    <input type="text" id="c-name" placeholder="作物名（例：トマト）">
+    <input type="text" id="c-icon" placeholder="絵文字（例：🍅）">
+    <input type="text" id="c-note" placeholder="メモ（品種など）">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('crop-modal')">キャンセル</button>
+      <button class="btn-save" onclick="saveCrop()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル: 予定追加 -->
+<div id="plan-modal" class="modal-bg" style="display:none;" onclick="bgClose(event,'plan-modal')">
+  <div class="modal">
+    <h2>予定を追加</h2>
+    <input type="date" id="p-date">
+    <input type="text" id="p-text" placeholder="内容（例：トマトの定植）">
+    <select id="p-type"><option value="plant">植え付け</option><option value="harvest">収穫</option><option value="pest">農薬散布</option></select>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('plan-modal')">キャンセル</button>
+      <button class="btn-save" onclick="savePlan()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル: 病害虫・農薬 -->
+<div id="pest-modal" class="modal-bg" style="display:none;" onclick="bgClose(event,'pest-modal')">
+  <div class="modal">
+    <h2>病害虫・農薬を記録</h2>
+    <select id="pest-kind" onchange="toggleSafeDays()"><option value="pest">病害虫メモ</option><option value="agri">農薬散布</option></select>
+    <input type="text" id="pest-name" placeholder="病害虫名または農薬名">
+    <select id="pest-crop-sel" onchange="autoLookupSafeDays()"></select>
+    <select id="pest-agri-name" style="display:none;" onchange="autoLookupSafeDays()">
+      <option value="">── 農薬を選択 ──</option>
+      <option value="オルトラン粒剤">オルトラン粒剤</option>
+      <option value="ダイアジノン粒剤">ダイアジノン粒剤</option>
+      <option value="ベニカナチュラルスプレー">ベニカナチュラルスプレー</option>
+      <option value="その他">その他（手動入力）</option>
+    </select>
+    <select id="pest-method" style="display:none;" onchange="autoLookupSafeDays()">
+      <option value="株元散布">株元散布（土にまく）</option>
+      <option value="茎葉散布">茎葉散布（葉にかける）</option>
+      <option value="植穴処理">植穴処理（定植時）</option>
+    </select>
+    <div id="auto-safe-result" style="display:none;background:#f0f7f3;border-radius:8px;padding:0.6rem 0.75rem;margin-bottom:0.5rem;font-size:13px;color:#1f6b3e;"></div>
+    <input type="date" id="pest-date">
+    <textarea id="pest-note" placeholder="症状・対処・使用量など"></textarea>
+    <div id="safe-days-row" style="display:none;">
+      <input type="number" id="pest-safe" placeholder="収穫NG日数（散布翌日から何日間か）" min="0">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('pest-modal')">キャンセル</button>
+      <button class="btn-save" onclick="savePest()">記録</button>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル: 生育イベント -->
+<div id="growth-modal" class="modal-bg" style="display:none;" onclick="bgClose(event,'growth-modal')">
+  <div class="modal">
+    <h2>生育イベントを記録</h2>
+    <select id="gev-type" onchange="onGevTypeChange()">
+      <option value="first_flower">🌸 一番花が咲いた</option>
+      <option value="first_fruit">🍅 実がついた（着果）</option>
+      <option value="first_harvest">🧺 初収穫！</option>
+      <option value="pruning">✂️ 摘心・整枝</option>
+      <option value="other">📝 その他メモ</option>
+    </select>
+    <input type="date" id="gev-date">
+    <input type="text" id="gev-note" placeholder="メモ（任意）">
+    <div id="gev-flower-hint" style="display:none;background:#fff8f0;border-radius:8px;padding:0.6rem 0.75rem;font-size:13px;color:#8a5a00;margin-bottom:0.5rem;line-height:1.5;">
+      開花日を記録すると積算温度で収穫予想日を自動計算します（harvest-timer.com 参照値）
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('growth-modal')">キャンセル</button>
+      <button class="btn-save" onclick="saveGrowthEvent()">記録する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var API_URL = 'https://script.google.com/macros/s/AKfycbxqi9cAoDzSr4niOoCm1lMOVGCAkcShzLzGRgRWvVZZ2OSe5RWevQf5V30AUcMgVLVm/exec';
+var db = { crops:[], logs:[], plans:[], pests:[], agris:[], sunlogs:[] };
+var calDate = new Date();
+var currentGrowthCropId = null;
+
+function api(params) {
+  return fetch(API_URL, { method:'POST', body:JSON.stringify(params) }).then(function(r){ return r.json(); });
+}
+
+function loadAll() {
+  setSyncStatus('同期中...', false);
+  api({ action:'getAll' }).then(function(data) {
+    db.crops   = data.crops   || [];
+    db.logs    = data.logs    || [];
+    db.plans   = data.plans   || [];
+    db.pests   = data.pests   || [];
+    db.agris   = data.agris   || [];
+    db.sunlogs = data.sunlogs || [];
+    setSyncStatus('同期済み ✓', false);
+    renderAll();
+  }).catch(function() { setSyncStatus('オフライン', true); });
+}
+
+function setSyncStatus(msg, isError) {
+  var el = document.getElementById('sync-status');
+  el.textContent = msg;
+  el.className = isError ? 'error-badge' : 'sync-badge';
+}
+
+function today() {
+  var d = new Date();
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+function pad(n){ return String(n).padStart(2,'0'); }
+function dateStr(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function newId(){ return Date.now(); }
+function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
+
+function getCropName(id) {
+  var c = db.crops.find(function(x){ return String(x.id)===String(id); });
+  return c ? (c.icon||'') + ' ' + c.name : '不明';
+}
+
+var screenIds = ['home','crops','log','calendar','pest','growth'];
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.nav button').forEach(function(b,i){ b.classList.toggle('active', screenIds[i]===id); });
+  document.getElementById(id).classList.add('active');
+  if (id==='crops')    renderCrops();
+  if (id==='log')      renderLog();
+  if (id==='calendar') renderCalendar();
+  if (id==='pest')     renderPest();
+  if (id==='growth')   renderGrowth();
+}
+
+function renderAll() { renderCrops(); renderLog(); renderCalendar(); renderPest(); }
+
+function openModal(id) {
+  if (id==='plan-modal') document.getElementById('p-date').value = today();
+  if (id==='pest-modal') {
+    document.getElementById('pest-date').value = today();
+    updateCropSelect('pest-crop-sel');
+  }
+  document.getElementById(id).style.display = 'flex';
+}
+function closeModal(id){ document.getElementById(id).style.display='none'; }
+function bgClose(e,id){ if(e.target.classList.contains('modal-bg')) closeModal(id); }
+
+function updateCropSelect(selId) {
+  var sel = document.getElementById(selId);
+  if (!sel) return;
+  sel.innerHTML = db.crops.map(function(c){
+    return '<option value="' + c.id + '">' + (c.icon||'') + ' ' + c.name + '</option>';
+  }).join('');
+}
+
+// ======== 作物 ========
+function renderCrops() {
+  var el = document.getElementById('crop-list');
+  var stLabel = { ok:'順調', warn:'要注意', alert:'問題あり' };
+  var stClass  = { ok:'chip-ok', warn:'chip-warn', alert:'chip-alert' };
+  var stNext   = { ok:'warn', warn:'alert', alert:'ok' };
+  el.innerHTML = db.crops.map(function(c) {
+    var days = c.planted ? Math.floor((Date.now()-new Date(c.planted))/86400000) : '-';
+    var acc = getSunAcc(c);
+    var sunStr = c.sunTarget ? acc.toFixed(1)+'h / '+c.sunTarget+'h' : acc.toFixed(1)+'h';
+    return '<div class="card" style="display:flex;align-items:center;gap:0.75rem;">'
+      + '<div style="width:38px;height:38px;border-radius:50%;background:#f0f7f3;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + (c.icon||'🌿') + '</div>'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-size:15px;font-weight:600;">' + c.name + '</div>'
+      + '<div style="font-size:12px;color:#888;margin-top:2px;">' + (c.note||'') + ' ・ 定植から' + days + '日</div>'
+      + '<div style="font-size:12px;color:#d4870a;margin-top:1px;">積算日照 ' + sunStr + '</div>'
+      + '</div>'
+      + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">'
+      + '<button data-cid="' + c.id + '" data-action="status" data-next="' + stNext[c.status||'ok'] + '" class="chip ' + (stClass[c.status]||'chip-ok') + '" style="cursor:pointer;border:none;">' + (stLabel[c.status]||'順調') + '</button>'
+      + '<button data-cid="' + c.id + '" data-action="delcrop" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;padding:2px 4px;">削除</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+  el.querySelectorAll('button[data-action="status"]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var cid = btn.dataset.cid;
+      var next = btn.dataset.next;
+      var crop = db.crops.find(function(c){ return String(c.id)===String(cid); });
+      if(!crop) return;
+      crop.status = next;
+      api({action:'update', sheet:'crops', id:cid, data:{status:next}});
+      renderCrops();
+    });
+  });
+  el.querySelectorAll('button[data-action="delcrop"]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(!confirm('この作物を削除しますか？')) return;
+      var cid = btn.dataset.cid;
+      api({action:'delete', sheet:'crops', id:cid}).then(function(){
+        db.crops = db.crops.filter(function(c){ return String(c.id)!==String(cid); });
+        renderCrops();
+        setSyncStatus('削除しました', false);
+      });
+    });
+  });
+  updateCropSelect('log-crop-sel');
+}
+
+function getSunAcc(crop) {
+  if (!crop.planted) return 0;
+  var start = new Date(crop.planted);
+  var total = 0;
+  db.sunlogs.forEach(function(s){ if(new Date(s.date)>=start) total+=Number(s.hours)||0; });
+  return total;
+}
+
+function saveCrop() {
+  var name = document.getElementById('c-name').value.trim();
+  if (!name) return;
+  var obj = { id:newId(), name:name, icon:document.getElementById('c-icon').value||'🌿',
+    planted:'', note:document.getElementById('c-note').value,
+    status:'ok', sunTarget:'' };
+  // モーダルを先に閉じてUIをすぐ更新（API待ちで固まらないように）
+  db.crops.push(obj);
+  closeModal('crop-modal');
+  renderCrops();
+  document.getElementById('c-name').value='';
+  document.getElementById('c-icon').value='';
+  document.getElementById('c-note').value='';
+  // バックグラウンドで保存
+  setSyncStatus('保存中...', false);
+  api({ action:'append', sheet:'crops', data:obj }).then(function(){
+    setSyncStatus('保存完了 ✓', false);
+  }).catch(function(){
+    setSyncStatus('保存失敗（再接続後に再試行を）', true);
+  });
+}
+
+// ======== 作業ログ ========
+var currentLogCropId = 'all';
+
+function renderLog() {
+  var tl = { teishow:'🌱 定植', water:'💧 水やり', fert:'🌿 施肥', seishi:'✂️ 整枝', harvest:'🧺 収穫', other:'📝 その他' };
+  // 作物タブ
+  var tabEl = document.getElementById('log-crop-tabs');
+  var tabs = [{id:'all', label:'すべて'}];
+  db.crops.forEach(function(c){ tabs.push({id:String(c.id), label:(c.icon||'🌿')+' '+c.name}); });
+  tabEl.innerHTML = tabs.map(function(t){
+    var active = String(t.id) === String(currentLogCropId);
+    var bg=active?'#2a7a5a':'#fafaf8', fg=active?'#fff':'#555', bd=active?'#2a7a5a':'#e0e0d8';
+    return '<button data-tabid="'+t.id+'" style="flex:none;padding:6px 14px;border-radius:99px;border:1px solid '+bd+';background:'+bg+';color:'+fg+';font-size:13px;cursor:pointer;white-space:nowrap;">'+t.label+'</button>';
+  }).join('');
+  tabEl.querySelectorAll('button[data-tabid]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      currentLogCropId = btn.dataset.tabid;
+      renderLog();
+    });
+  });
+  // ログ一覧（フィルタ）
+  var filtered = currentLogCropId === 'all'
+    ? db.logs.slice().reverse()
+    : db.logs.filter(function(l){ return String(l.crop)===String(currentLogCropId); }).slice().reverse();
+  var el = document.getElementById('log-list');
+  el.innerHTML = filtered.map(function(l){
+    return '<div class="card" style="display:flex;gap:0.75rem;align-items:center;padding:0.75rem 1rem;">'
+      + '<div style="flex:1;"><div style="font-size:14px;font-weight:500;">' + (tl[l.type]||l.type) + ' — ' + getCropName(l.crop) + '</div>'
+      + '<div style="font-size:12px;color:#888;margin-top:3px;">' + l.date + (l.note?' · '+l.note:'') + '</div></div>'
+      + '<button data-lid="' + l.id + '" data-action="dellog" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;flex-shrink:0;padding:4px;">削除</button>'
+      + '</div>';
+  }).join('');
+  el.querySelectorAll('button[data-action="dellog"]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(!confirm('この記録を削除しますか？')) return;
+      var lid = btn.dataset.lid;
+      db.logs = db.logs.filter(function(l){ return String(l.id)!==String(lid); });
+      renderLog();
+      api({action:'delete', sheet:'logs', id:lid}).catch(function(){});
+      setSyncStatus('削除しました', false);
+    });
+  });
+  updateCropSelect('log-crop-sel');
+  document.getElementById('log-date').value = today();
+}
+
+function addLog() {
+  var type = document.getElementById('log-type').value;
+  var crop = document.getElementById('log-crop-sel').value;
+  var date = document.getElementById('log-date').value;
+  var note = document.getElementById('log-note').value;
+  if (!crop || !date) return;
+  var obj = { id:newId(), type:type, crop:crop, date:date, note:note };
+  db.logs.push(obj);
+  if (type==='teishow') {
+    var cropObj = db.crops.find(function(c){ return String(c.id)===String(crop); });
+    if (cropObj) {
+      cropObj.planted = date;
+      api({ action:'update', sheet:'crops', id:cropObj.id, data:{ planted:date } });
+    }
+  }
+  document.getElementById('log-note').value = '';
+  renderLog();
+  setSyncStatus('保存中...', false);
+  api({ action:'append', sheet:'logs', data:obj }).then(function(){
+    setSyncStatus('保存完了 ✓', false);
+  }).catch(function(){ setSyncStatus('保存失敗', true); });
+}
+
+// ======== カレンダー ========
+function getBanDates() {
+  // 農薬禁止期間の日付セットを返す
+  // safeDays=3 → 散布日当日 + 翌1〜3日が禁止（計4日）
+  // safeDays=0（前日まで）→ 散布当日のみ禁止
+  var banned = new Set();
+  db.agris.forEach(function(a){
+    if (!a.safeDays && a.safeDays !== 0) return;
+    var start = new Date(a.date);
+    // 散布当日も禁止
+    banned.add(dateStr(start));
+    var days = Number(a.safeDays);
+    for (var i=1; i<=days; i++) {
+      var d = new Date(start.getTime()+i*86400000);
+      banned.add(dateStr(d));
+    }
+  });
+  return banned;
+}
+
+function renderCalendar() {
+  var y = calDate.getFullYear(), m = calDate.getMonth();
+  document.getElementById('cal-title').textContent = y+'年'+(m+1)+'月';
+  var labels = ['日','月','火','水','木','金','土'];
+  document.getElementById('cal-labels').innerHTML = labels.map(function(l){ return '<div class="cal-label">'+l+'</div>'; }).join('');
+  var first=new Date(y,m,1).getDay(), last=new Date(y,m+1,0).getDate();
+  var todayStr=today(), banDates=getBanDates();
+
+  // 日ごとのログ集計（水やり・農薬）
+  var waterDates=new Set();
+  db.logs.forEach(function(l){
+    if(l.type==='water') waterDates.add(l.date);
+  });
+  // 農薬散布日 → {date: [{cropIcon, agriShort}]}
+  var agriByDate={};
+  db.agris.forEach(function(a){
+    if(!agriByDate[a.date]) agriByDate[a.date]=[];
+    var crop=db.crops.find(function(c){return String(c.id)===String(a.crop);});
+    var cropIcon=crop?crop.icon||'🌿':'🌿';
+    // 農薬名を短縮
+    var short=a.name.replace('ベニカナチュラルスプレー','ベニカ').replace('ダイアジノン粒剤','ダイアジノン').replace('オルトラン粒剤','オルトラン');
+    agriByDate[a.date].push(cropIcon+'🚿'+short);
+  });
+
+  var html='';
+  for (var i=0; i<first; i++) html+='<div></div>';
+  for (var d=1; d<=last; d++) {
+    var ds=y+'-'+pad(m+1)+'-'+pad(d);
+    var isBan=banDates.has(ds);
+    var isToday=ds===todayStr;
+    var cls='cal-day'+(isToday?' today':'')+(isBan?' pest-ban':'');
+    var hasPlan=db.plans.some(function(p){return p.date===ds;});
+    var hasWater=waterDates.has(ds);
+    var dots='';
+    if(hasPlan&&!isBan) dots+='<div class="cal-dot"></div>';
+    if(hasWater) dots+='<div style="width:4px;height:4px;border-radius:50%;background:#378ADD;position:absolute;bottom:3px;left:calc(50% - 5px);transform:translateX(-50%);"></div>';
+    html+='<div class="'+cls+'">'+d+dots+'</div>';
+  }
+  document.getElementById('cal-days').innerHTML=html;
+
+  // 農薬散布記録（月内）を日付順に表示
+  var agriInMonth=db.agris.filter(function(a){
+    return a.date && a.date.slice(0,7)===(y+'-'+pad(m+1));
+  }).sort(function(a,b){return a.date>b.date?-1:1;});
+
+  // 禁止期間中リスト（今日以降）
+  var now=new Date(); now.setHours(0,0,0,0);
+  var active=db.agris.filter(function(a){
+    if(a.safeDays===null||a.safeDays===undefined) return false;
+    var sprayDate=new Date(a.date);
+    var endDate=new Date(sprayDate.getTime()+Number(a.safeDays)*86400000);
+    return endDate>=now; // 散布当日〜禁止終了日まで
+  });
+  var bl=document.getElementById('ban-list');
+  if (active.length) {
+    bl.innerHTML=active.map(function(a){
+      var sprayDate=new Date(a.date);
+      var endDate=new Date(sprayDate.getTime()+Number(a.safeDays)*86400000);
+      var remain=Math.ceil((endDate-now)/86400000);
+      var crop=db.crops.find(function(c){return String(c.id)===String(a.crop);});
+      var cropIcon=crop?crop.icon||'🌿':'🌿';
+      var cropName2=crop?crop.name:'不明';
+      var pct=Math.max(0,Math.round((1-remain/Math.max(Number(a.safeDays),1))*100));
+      var endStr=endDate.toLocaleDateString('ja-JP',{month:'short',day:'numeric'});
+      return '<div class="card card-red">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;">'
+        +'<div>'
+        +'<div style="font-size:14px;font-weight:600;">'+cropIcon+' '+cropName2+' × '+a.name+'</div>'
+        +'<div style="font-size:12px;color:#888;margin-top:2px;">'+a.date+' 散布 · '+endStr+'まで収穫NG</div>'
+        +'</div>'
+        +'<div style="font-size:14px;font-weight:700;color:#c94040;">残り'+remain+'日</div>'
+        +'</div>'
+        +'<div style="background:#f5d5d5;border-radius:4px;height:5px;margin-top:10px;overflow:hidden;">'
+        +'<div style="background:#c94040;height:5px;width:'+pct+'%;"></div></div></div>';
+    }).join('');
+  } else {
+    bl.innerHTML='<div style="font-size:13px;color:#aaa;padding:0.25rem 0;">現在収穫NG期間の農薬はありません</div>';
+  }
+
+  // 凡例
+  document.getElementById('cal-legend').innerHTML=
+    '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#888;margin-bottom:0.4rem;">'
+    +'<div style="width:8px;height:8px;border-radius:50%;background:#378ADD;flex-shrink:0;"></div>水やり</div>'
+    +'<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#888;margin-bottom:0.6rem;">'
+    +'<div style="width:14px;height:14px;background:#fdeaea;border-radius:3px;border:1px solid #f09595;flex-shrink:0;"></div>収穫NG期間</div>';
+
+  // 農薬散布ログ（カレンダー月内）
+  var agriLogEl=document.getElementById('agri-log-list');
+  if(agriInMonth.length){
+    agriLogEl.innerHTML=agriInMonth.map(function(a){
+      var crop=db.crops.find(function(c){return String(c.id)===String(a.crop);});
+      var cropIcon=crop?crop.icon||'🌿':'🌿';
+      var cropName2=crop?crop.name:'不明';
+      var endDate=a.safeDays?new Date(new Date(a.date).getTime()+Number(a.safeDays)*86400000):null;
+      var endStr=endDate?'→ '+endDate.toLocaleDateString('ja-JP',{month:'short',day:'numeric'})+'まで収穫NG':'';
+      return '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;border-bottom:1px solid #f5f5f0;">'
+        +'<div style="font-size:20px;">'+cropIcon+'</div>'
+        +'<div style="flex:1;">'
+        +'<div style="font-size:14px;font-weight:500;">🚿 '+a.name+'</div>'
+        +'<div style="font-size:12px;color:#888;">'+cropName2+' · '+a.date+' '+endStr+'</div>'
+        +'</div></div>';
+    }).join('');
+  } else {
+    agriLogEl.innerHTML='<div style="font-size:13px;color:#aaa;padding:0.25rem 0;">この月の農薬散布記録はありません</div>';
+  }
+
+  var tl2={plant:'植え付け',harvest:'収穫',pest:'農薬散布'};
+  var bc={plant:'chip-ok',harvest:'chip-warn',pest:'chip-alert'};
+  var planEl = document.getElementById('plan-list');
+  planEl.innerHTML=db.plans.slice().sort(function(a,b){return a.date>b.date?1:-1;}).map(function(p){
+    return '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid #f0f0ea;">'
+      +'<div style="font-size:12px;color:#aaa;min-width:38px;">'+p.date.slice(5)+'</div>'
+      +'<div style="flex:1;font-size:14px;">'+p.text+'</div>'
+      +'<span class="chip '+bc[p.type]+'">'+tl2[p.type]+'</span>'
+      +'<button data-pid="'+p.id+'" data-action="delplan" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;flex-shrink:0;padding:4px;">削除</button>'
+      +'</div>';
+  }).join('');
+  planEl.querySelectorAll('button[data-action="delplan"]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(!confirm('この予定を削除しますか？')) return;
+      var pid = btn.dataset.pid;
+      db.plans = db.plans.filter(function(p){ return String(p.id)!==String(pid); });
+      renderCalendar();
+      api({action:'delete',sheet:'plans',id:pid}).catch(function(){});
+      setSyncStatus('削除しました', false);
+    });
+  });
+  document.getElementById('p-date').value=today();
+}
+function prevMonth(){ calDate.setMonth(calDate.getMonth()-1); renderCalendar(); }
+function nextMonth(){ calDate.setMonth(calDate.getMonth()+1); renderCalendar(); }
+
+function savePlan() {
+  var date=document.getElementById('p-date').value, text=document.getElementById('p-text').value.trim();
+  if(!date||!text) return;
+  var obj={id:newId(),date:date,text:text,type:document.getElementById('p-type').value};
+  db.plans.push(obj); closeModal('plan-modal'); renderCalendar();
+  setSyncStatus('保存中...', false);
+  api({action:'append',sheet:'plans',data:obj}).then(function(){
+    setSyncStatus('保存完了 ✓', false);
+  }).catch(function(){ setSyncStatus('保存失敗', true); });
+}
+
+// ======== 病害虫・農薬 ========
+var AGRI_DB = {
+  'オルトラン粒剤': {
+    '株元散布': {
+      'トマト':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:2},
+      'ミニトマト':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:2},
+      'キュウリ':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:2},
+      'ナス':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:2},
+      'ピーマン':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:2},
+      'キャベツ':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:2},
+      'ブロッコリー':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:2},
+      'ハクサイ':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:1},
+      'ダイコン':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:2},
+      'カブ':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:2},
+      'default':{days:21,note:'収穫21日前まで使用可（ラベル要確認）',maxUses:2}
+    },
+    '植穴処理': { 'default':{days:null,note:'定植時のみ使用可（収穫NG期間なし）',maxUses:1} },
+    '茎葉散布': { 'default':{days:null,note:'オルトラン粒剤は茎葉散布の登録がありません',maxUses:null} }
+  },
+  'ダイアジノン粒剤': {
+    '株元散布': {
+      'トマト':{days:10,note:'収穫開始10日前まで使用可（散布当日含め11日間収穫NG）',maxUses:3},
+      'ミニトマト':{days:1,note:'収穫前日まで使用可（散布当日含め2日間収穫NG）',maxUses:3},
+      'ナス':{days:3,note:'収穫開始3日前まで使用可（散布当日含め4日間収穫NG）',maxUses:3},
+      'ピーマン':{days:10,note:'収穫開始10日前まで使用可（散布当日含め11日間収穫NG）',maxUses:3},
+      'ゴーヤ':{days:null,note:'定植時のみ登録（収穫NG期間なし）',maxUses:2},
+      'ニガウリ':{days:null,note:'定植時のみ登録（収穫NG期間なし）',maxUses:2},
+      'エダマメ':{days:30,note:'収穫30日前まで使用可（散布当日含め31日間収穫NG）',maxUses:5},
+      'トウモロコシ':{days:14,note:'収穫14日前まで使用可（散布当日含め15日間収穫NG）',maxUses:2},
+      'とうがらし':{days:14,note:'収穫開始14日前まで使用可（散布当日含め15日間収穫NG）',maxUses:3},
+      'キュウリ':{days:null,note:'定植時のみ登録。生育期の土壌処理は登録外',maxUses:null},
+      'カボチャ':{days:21,note:'収穫21日前まで使用可（散布当日含め22日間収穫NG）',maxUses:4},
+      'スイカ':{days:14,note:'収穫14日前まで使用可（散布当日含め15日間収穫NG）',maxUses:4},
+      'メロン':{days:14,note:'収穫14日前まで使用可（散布当日含め15日間収穫NG）',maxUses:4},
+      'キャベツ':{days:30,note:'収穫30日前まで使用可（散布当日含め31日間収穫NG）',maxUses:2},
+      'ブロッコリー':{days:30,note:'収穫30日前まで使用可（散布当日含め31日間収穫NG）',maxUses:2},
+      'カリフラワー':{days:30,note:'収穫30日前まで使用可（散布当日含め31日間収穫NG）',maxUses:2},
+      'default':{days:null,note:'この作物の登録を確認してください',maxUses:null}
+    },
+    '植穴処理': { 'default':{days:null,note:'定植時のみ使用可（収穫NG期間なし）',maxUses:1} },
+    '茎葉散布': { 'default':{days:null,note:'ダイアジノン粒剤は土壌処理専用です',maxUses:null} }
+  },
+  'ベニカナチュラルスプレー': {
+    '茎葉散布': {
+      'ナス':{days:0,note:'収穫前日まで使用可（散布当日のみ収穫NG）'},
+      'ミニトマト':{days:0,note:'収穫前日まで使用可（散布当日のみ収穫NG）'},
+      'キュウリ':{days:0,note:'収穫前日まで使用可（散布当日のみ収穫NG）'},
+      'トマト':{days:0,note:'収穫前日まで使用可（散布当日のみ収穫NG）'},
+      'ダイコン':{days:14,note:'収穫14日前まで使用可（散布当日含め15日間収穫NG）'},
+      'カブ':{days:14,note:'収穫14日前まで使用可（散布当日含め15日間収穫NG）'},
+      'キャベツ':{days:3,note:'収穫3日前まで使用可（散布当日含め4日間収穫NG）'},
+      'default':{days:null,note:'この作物への登録を確認してください'}
+    },
+    '株元散布': { 'default':{days:null,note:'茎葉散布（葉にかける）専用です'} },
+    '植穴処理': { 'default':{days:null,note:'茎葉散布（葉にかける）専用です'} }
+  }
+};
+
+function findAgriInfo(agriName, cropName, method) {
+  var db2 = AGRI_DB[agriName];
+  if (!db2) return null;
+  var methodData = db2[method];
+  if (!methodData) return null;
+  var found = null;
+  Object.keys(methodData).forEach(function(k){
+    if (k!=='default' && (cropName.indexOf(k)>=0||k.indexOf(cropName)>=0)) found=methodData[k];
+  });
+  return found || methodData['default'];
+}
+
+function countUses(agriName, cropId) {
+  return db.agris.filter(function(a){ return String(a.name)===String(agriName)&&String(a.crop)===String(cropId); }).length;
+}
+
+function toggleSafeDays() {
+  var isAgri=document.getElementById('pest-kind').value==='agri';
+  document.getElementById('safe-days-row').style.display=isAgri?'block':'none';
+  document.getElementById('pest-agri-name').style.display=isAgri?'block':'none';
+  document.getElementById('pest-method').style.display=isAgri?'block':'none';
+  document.getElementById('auto-safe-result').style.display='none';
+  if(isAgri) autoLookupSafeDays();
+}
+
+function autoLookupSafeDays() {
+  var kind=document.getElementById('pest-kind').value;
+  if(kind!=='agri') return;
+  var agriName=document.getElementById('pest-agri-name').value;
+  var cropId=document.getElementById('pest-crop-sel').value;
+  var method=document.getElementById('pest-method').value;
+  var resultEl=document.getElementById('auto-safe-result');
+  var safeInput=document.getElementById('pest-safe');
+  if(agriName&&agriName!=='その他') document.getElementById('pest-name').value=agriName;
+  if(!agriName||agriName==='その他'){ resultEl.style.display='none'; document.getElementById('safe-days-row').style.display='block'; return; }
+  var crop=db.crops.find(function(c){ return String(c.id)===String(cropId); });
+  var cropName=crop?crop.name:'';
+  var found=findAgriInfo(agriName,cropName,method);
+  if(!found){ resultEl.style.display='none'; return; }
+  resultEl.style.display='block';
+  if(found.days===null||found.days===undefined){
+    resultEl.style.background='#fdeaea'; resultEl.style.color='#9a2020';
+    resultEl.textContent='⚠️ '+found.note;
+    safeInput.value=''; document.getElementById('safe-days-row').style.display='none'; return;
+  }
+  var usedCount=countUses(agriName,cropId);
+  var maxUses=found.maxUses;
+  if(maxUses&&usedCount>=maxUses){
+    resultEl.style.background='#fdeaea'; resultEl.style.color='#9a2020';
+    resultEl.textContent='🚫 上限回数（'+maxUses+'回）に達しています';
+    safeInput.value=''; document.getElementById('safe-days-row').style.display='none'; return;
+  }
+  var remaining=maxUses?maxUses-usedCount:null;
+  var note=found.note+(remaining!==null?'（残り'+remaining+'回）':'');
+  if(maxUses&&remaining===1){ resultEl.style.background='#fef3e2'; resultEl.style.color='#8a5a00'; }
+  else { resultEl.style.background='#f0f7f3'; resultEl.style.color='#1f6b3e'; }
+  resultEl.textContent='✓ '+note;
+  safeInput.value=found.days;
+  document.getElementById('safe-days-row').style.display=found.days>0?'block':'none';
+}
+
+function renderPest() {
+  var pestEl = document.getElementById('pest-list');
+  pestEl.innerHTML=db.pests.map(function(p){
+    return '<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'
+      +'<div style="font-size:14px;font-weight:600;">'+p.name+'</div>'
+      +'<div style="display:flex;align-items:center;gap:8px;">'
+      +'<div style="font-size:11px;color:#aaa;">'+p.date+'</div>'
+      +'<button data-pestid="'+p.id+'" data-action="delpest" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;">削除</button>'
+      +'</div></div>'
+      +'<div style="font-size:12px;color:#888;">'+getCropName(p.crop)+'</div>'
+      +'<div style="font-size:13px;color:#555;margin-top:4px;">'+(p.note||'')+'</div></div>';
+  }).join('');
+  pestEl.querySelectorAll('button[data-action="delpest"]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(!confirm('この記録を削除しますか？')) return;
+      var id = btn.dataset.pestid;
+      api({action:'delete',sheet:'pests',id:id}).then(function(){
+        db.pests = db.pests.filter(function(p){ return String(p.id)!==String(id); });
+        renderPest(); setSyncStatus('削除しました', false);
+      });
+    });
+  });
+
+  var now=new Date(); now.setHours(0,0,0,0);
+  var grouped={};
+  db.agris.forEach(function(a){
+    var key=a.name+'__'+a.crop;
+    if(!grouped[key]) grouped[key]={name:a.name,crop:a.crop,records:[]};
+    grouped[key].records.push(a);
+  });
+
+  document.getElementById('agri-list').innerHTML=Object.values(grouped).map(function(g){
+    var useCount=g.records.length;
+    var maxUses=null;
+    var crop=db.crops.find(function(c){ return String(c.id)===String(g.crop); });
+    var cropName=crop?crop.name:'';
+    var agriEntry=AGRI_DB[g.name];
+    if(agriEntry){
+      Object.values(agriEntry).forEach(function(md){
+        Object.keys(md).forEach(function(k){
+          if(k!=='default'&&(cropName.indexOf(k)>=0||k.indexOf(cropName)>=0)&&md[k].maxUses) maxUses=md[k].maxUses;
+        });
+      });
+    }
+    var isOver=maxUses&&useCount>=maxUses, isWarn=maxUses&&useCount===maxUses-1;
+    var countChip=isOver?'chip-alert':isWarn?'chip-warn':'chip-ok';
+    var countLabel=maxUses?useCount+' / '+maxUses+'回':useCount+'回使用';
+    var latest=g.records.slice().sort(function(a,b){return a.date>b.date?-1:1;})[0];
+    var cardCls='card'+(isOver?' card-red':isWarn?' card-warn':'');
+    var histHtml='';
+    if(g.records.length>1){
+      histHtml='<details style="margin-top:8px;"><summary style="font-size:12px;color:#aaa;cursor:pointer;">散布履歴 全'+g.records.length+'回</summary>';
+      g.records.slice().sort(function(a,b){return a.date>b.date?-1:1;}).forEach(function(r){
+        histHtml+='<div style="font-size:12px;color:#888;padding:3px 0 0 4px;">'+r.date+(r.note?' · '+r.note:'')+'</div>';
+      });
+      histHtml+='</details>';
+    }
+    return '<div class="'+cardCls+'">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'
+      +'<div><div style="font-size:14px;font-weight:600;">'+g.name+'</div>'
+      +'<div style="font-size:12px;color:#888;margin-top:1px;">'+getCropName(g.crop)+'</div></div>'
+      +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">'
+      +'<span class="chip '+countChip+'">'+countLabel+'</span>'
+      +'<button data-agriids="'+g.records.map(function(r){return r.id;}).join(',')+'" data-action="delagri" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;">全削除</button>'
+      +'</div></div>'
+      +'<div style="font-size:12px;color:#555;">最終散布：'+latest.date+(latest.note?' · '+latest.note:'')+'</div>'
+      +histHtml+'</div>';
+  }).join('') || '<div style="font-size:13px;color:#aaa;padding:0.5rem 0;">農薬使用記録はありません</div>';
+
+  var agriEl = document.getElementById('agri-list');
+  agriEl.querySelectorAll('button[data-action="delagri"]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(!confirm('この農薬の使用記録をすべて削除しますか？')) return;
+      var ids = btn.dataset.agriids.split(',');
+      var promises = ids.map(function(id){ return api({action:'delete',sheet:'agris',id:id}); });
+      Promise.all(promises).then(function(){
+        db.agris = db.agris.filter(function(a){ return ids.indexOf(String(a.id))===-1; });
+        renderPest(); renderCalendar(); setSyncStatus('削除しました', false);
+      });
+    });
+  });
+  updateCropSelect('pest-crop-sel');
+}
+
+function savePest() {
+  var kind=document.getElementById('pest-kind').value;
+  var agriNameSel=document.getElementById('pest-agri-name').value;
+  var nameInput=document.getElementById('pest-name').value.trim();
+  var name=kind==='agri'&&agriNameSel&&agriNameSel!=='その他'?agriNameSel:nameInput;
+  var method=document.getElementById('pest-method').value;
+  var crop=document.getElementById('pest-crop-sel').value;
+  var date=document.getElementById('pest-date').value;
+  var note=document.getElementById('pest-note').value;
+  if(!name) return;
+  if(kind==='pest'){
+    var obj={id:newId(),name:name,crop:crop,date:date,note:note};
+    db.pests.push(obj); closeModal('pest-modal'); renderPest();
+    setSyncStatus('保存中...', false);
+    api({action:'append',sheet:'pests',data:obj}).then(function(){
+      setSyncStatus('保存完了 ✓', false);
+    }).catch(function(){ setSyncStatus('保存失敗', true); });
+  } else {
+    var safe=parseInt(document.getElementById('pest-safe').value)||0;
+    var fullNote=method?'['+method+'] '+note:note;
+    var obj2={id:newId(),name:name,crop:crop,date:date,note:fullNote,safeDays:safe};
+    db.agris.push(obj2); closeModal('pest-modal'); renderPest(); renderCalendar();
+    setSyncStatus('保存中...', false);
+    api({action:'append',sheet:'agris',data:obj2}).then(function(){
+      setSyncStatus('保存完了 ✓', false);
+    }).catch(function(){ setSyncStatus('保存失敗', true); });
+  }
+}
+
+// ======== 天気 ========
+function fetchWeather() {
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=36.0809&longitude=140.2050&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,sunshine_duration&timezone=Asia%2FTokyo&forecast_days=1')
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    var c=d.current, dd=d.daily;
+    document.getElementById('wx-temp').textContent=Math.round(c.temperature_2m);
+    document.getElementById('wx-humid').textContent=Math.round(c.relative_humidity_2m);
+    document.getElementById('wx-rain').textContent=c.precipitation.toFixed(1);
+    document.getElementById('wx-wind').textContent=c.wind_speed_10m.toFixed(1);
+    document.getElementById('wx-high').textContent=Math.round(dd.temperature_2m_max[0]);
+    document.getElementById('wx-low').textContent=Math.round(dd.temperature_2m_min[0]);
+    var sunH=parseFloat((dd.sunshine_duration[0]/3600).toFixed(1));
+    document.getElementById('wx-sun').textContent=sunH;
+    var wc=c.weather_code, icon='☀️', desc='晴れ';
+    if(wc>=80){icon='⛈️';desc='雷雨';}else if(wc>=61){icon='🌧️';desc='雨';}else if(wc>=51){icon='🌦️';desc='小雨';}else if(wc>=45){icon='🌫️';desc='霧';}else if(wc>=3){icon='☁️';desc='曇り';}else if(wc>=1){icon='🌤️';desc='晴れ時々曇り';}
+    document.getElementById('wx-icon').textContent=icon;
+    document.getElementById('wx-desc').textContent=desc;
+    document.getElementById('wx-loading').style.display='none';
+    document.getElementById('wx-content').style.display='block';
+    var td=today();
+    var avgTemp=Math.round((dd.temperature_2m_max[0]+dd.temperature_2m_min[0])/2*10)/10;
+    api({action:'upsertSunlog',date:td,hours:sunH,avgTemp:avgTemp}).then(function(){
+      var existing=db.sunlogs.find(function(s){return s.date===td;});
+      if(existing){existing.hours=sunH;existing.avg_temp=avgTemp;}else{db.sunlogs.push({date:td,hours:sunH,avg_temp:avgTemp});}
+    });
+    genTasks(c.temperature_2m,c.relative_humidity_2m,c.precipitation,sunH);
+  }).catch(function(){ document.getElementById('wx-loading').textContent='天気データを取得できませんでした'; });
+}
+
+function genTasks(temp,humid,rain,sun){
+  var tasks=[];
+  if(rain>0) tasks.push('☂️ 雨のため水やりは不要です');
+  else if(temp>25) tasks.push('💧 気温高め。水やりをしっかり行いましょう');
+  else tasks.push('💧 今日も水やりの時間です');
+  if(humid>80) tasks.push('🔍 高湿度。カビ・病気に注意して葉を確認しましょう');
+  if(sun>6) tasks.push('☀️ 日照良好！生育チェックの良い日です');
+  if(temp>28) tasks.push('🌿 高温。マルチングで地温上昇を防ぎましょう');
+  var now=new Date(); now.setHours(0,0,0,0);
+  var bans=db.agris.filter(function(a){return a.safeDays&&new Date(new Date(a.date).getTime()+Number(a.safeDays)*86400000)>=now;});
+  if(bans.length) tasks.push('🚫 収穫NG期間中の作物があります。収穫に注意！');
+  document.getElementById('today-tasks').innerHTML=tasks.map(function(t){
+    return '<div style="padding:0.65rem 0.875rem;background:#f5f9f7;border-radius:10px;margin-bottom:0.4rem;font-size:14px;">'+t+'</div>';
+  }).join('');
+}
+
+// ======== 生育記録 ========
+var TEMP_DB = {
+  'トマト':{low:1100,high:1200,stageLabel:'開花後'},
+  'ミニトマト':{low:1000,high:1100,stageLabel:'開花後'},
+  'ナス':{low:300,high:400,stageLabel:'開花後'},
+  'ピーマン':{low:250,high:350,stageLabel:'開花後'},
+  'パプリカ':{low:1000,high:1100,stageLabel:'開花後'},
+  'イチゴ':{low:800,high:900,stageLabel:'開花後'},
+  'キュウリ':{low:200,high:300,stageLabel:'開花後'},
+  'カボチャ':{low:900,high:1000,stageLabel:'開花後'},
+  'メロン':{low:1100,high:1200,stageLabel:'開花後'},
+  'スイカ':{low:1000,high:1100,stageLabel:'開花後'},
+  'オクラ':{low:100,high:150,stageLabel:'開花後'},
+  'エダマメ':{low:600,high:700,stageLabel:'開花後'},
+  'ハクサイ':{low:900,high:1000,stageLabel:'開花後'},
+  'キャベツ':{low:800,high:900,stageLabel:'開花後'},
+  'ブロッコリー':{low:900,high:1000,stageLabel:'開花後'},
+  'スイートコーン':{low:1700,high:1800,stageLabel:'播種後'},
+  'トウモロコシ':{low:1700,high:1800,stageLabel:'播種後'},
+  'ゴーヤ':{low:200,high:300,stageLabel:'開花後'},
+  'ニガウリ':{low:200,high:300,stageLabel:'開花後'}
+};
+
+var GEV_DEF = {
+  first_flower:{label:'一番花が咲いた',icon:'🌸',milestone:true},
+  first_fruit:{label:'着果（実がついた）',icon:'🍅',milestone:true},
+  first_harvest:{label:'初収穫！',icon:'🧺',milestone:true},
+  pruning:{label:'摘心・整枝',icon:'✂️',milestone:false},
+  other:{label:'メモ',icon:'📝',milestone:false}
+};
+
+function getTempInfo(cropName){
+  var found=null;
+  Object.keys(TEMP_DB).forEach(function(k){ if(cropName.indexOf(k)>=0||k.indexOf(cropName)>=0) found=TEMP_DB[k]; });
+  return found;
+}
+
+function getGrowthEvents(){ return JSON.parse(localStorage.getItem('g_growth')||'[]'); }
+function saveGrowthEventsLocal(evs){ localStorage.setItem('g_growth',JSON.stringify(evs)); }
+
+function renderGrowth(){
+  var crops=db.crops;
+  if(!crops.length){
+    document.getElementById('growth-crop-sel').innerHTML='<div style="font-size:13px;color:#aaa;">先に作物タブで作物を追加してください</div>';
+    document.getElementById('growth-temp-section').style.display='none';
+    document.getElementById('growth-milestones').innerHTML='';
+    document.getElementById('growth-timeline').innerHTML='';
+    return;
+  }
+  if(!currentGrowthCropId||!crops.find(function(c){return String(c.id)===String(currentGrowthCropId);})){
+    currentGrowthCropId=crops[0].id;
+  }
+  var selEl=document.getElementById('growth-crop-sel');
+  selEl.innerHTML=crops.map(function(c){
+    var active=String(c.id)===String(currentGrowthCropId);
+    var bg=active?'#2a7a5a':'#fafaf8', fg=active?'#fff':'#555', bd=active?'#2a7a5a':'#e0e0d8';
+    return '<button data-cropid="'+c.id+'" style="flex:none;padding:6px 14px;border-radius:99px;border:1px solid '+bd+';background:'+bg+';color:'+fg+';font-size:13px;cursor:pointer;white-space:nowrap;">'+(c.icon||'🌿')+' '+c.name+'</button>';
+  }).join('');
+  selEl.querySelectorAll('button[data-cropid]').forEach(function(btn){
+    btn.addEventListener('click',function(){ currentGrowthCropId=btn.dataset.cropid; renderGrowth(); });
+  });
+  renderGrowthDetail();
+}
+
+function renderGrowthDetail(){
+  var crop=db.crops.find(function(c){return String(c.id)===String(currentGrowthCropId);});
+  if(!crop) return;
+  var evs=getGrowthEvents().filter(function(e){return String(e.cropId)===String(currentGrowthCropId);});
+  var ti=getTempInfo(crop.name);
+  var flowerEv=evs.find(function(e){return e.type==='first_flower';});
+
+  var sec=document.getElementById('growth-temp-section');
+  if(ti&&flowerEv){
+    sec.style.display='block';
+    document.getElementById('growth-temp-title').textContent='積算温度（'+ti.stageLabel+' / harvest-timer.com参照）';
+    var acc=0, daysMissing=0;
+    var start=new Date(flowerEv.date), end=new Date(today());
+    for(var d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+      var ds=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+      var sl=db.sunlogs.find(function(s){return s.date===ds;});
+      var t=sl&&sl.avg_temp?Number(sl.avg_temp):null;
+      if(t!==null){acc+=t;}else{acc+=20;daysMissing++;}
+    }
+    acc=Math.round(acc);
+    var pct=Math.min(100,Math.round(acc/ti.high*100));
+    var remain=Math.max(0,ti.low-acc);
+    var elapsed=daysBetween(flowerEv.date,today())+1;
+    var avg=acc/elapsed;
+    document.getElementById('growth-temp-acc').textContent=acc.toLocaleString()+'°C';
+    document.getElementById('growth-temp-range').textContent='目標 '+ti.low.toLocaleString()+'〜'+ti.high.toLocaleString()+'°C';
+    document.getElementById('growth-temp-pct').textContent=pct+'%';
+    document.getElementById('growth-temp-bar').style.width=pct+'%';
+    var missingNote=daysMissing>0?' ※'+daysMissing+'日分は暫定値(20°C)':'';
+    var fb=document.getElementById('growth-forecast');
+    if(acc>=ti.low){
+      document.getElementById('growth-temp-msg').textContent='✓ 積算'+ti.low.toLocaleString()+'°C達成！収穫適期です'+missingNote;
+      fb.style.display='none';
+    } else {
+      document.getElementById('growth-temp-msg').textContent=ti.stageLabel+elapsed+'日経過 ・ 平均'+avg.toFixed(1)+'°C/日'+missingNote;
+      var dLeft=Math.ceil(remain/avg);
+      var fd=new Date(); fd.setDate(fd.getDate()+dLeft);
+      fb.style.display='block';
+      fb.innerHTML='収穫予想：あと約'+dLeft+'日（'+fd.toLocaleDateString('ja-JP',{month:'long',day:'numeric'})+'ごろ）<br>'
+        +'<span style="font-size:11px;color:#aaa;">残り約'+remain.toLocaleString()+'°C</span>';
+    }
+  } else {
+    sec.style.display='none';
+  }
+
+  var ms=['first_flower','first_fruit','first_harvest'];
+  var msEl=document.getElementById('growth-milestones');
+  msEl.innerHTML=ms.map(function(type){
+    var ev=evs.find(function(e){return e.type===type;});
+    var def=GEV_DEF[type];
+    var dFromPlant=ev&&crop.planted?daysBetween(crop.planted,ev.date):null;
+    var iconBg=ev?'#e6f4ee':'#f5f5f0';
+    var daysHtml=dFromPlant!==null?'<div style="font-size:12px;color:#2a7a5a;margin-top:1px;">定植から'+dFromPlant+'日目</div>':'';
+    var dateHtml=ev?'<div style="font-size:12px;color:#888;margin-top:1px;">'+ev.date+(ev.note?' ・ '+ev.note:'')+'</div>'+daysHtml:'<div style="font-size:12px;color:#ccc;margin-top:1px;">未記録</div>';
+    var btnHtml=ev?'':'<button data-evtype="'+type+'" style="font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid #e0e0d8;background:#fff;color:#555;cursor:pointer;white-space:nowrap;flex-shrink:0;">記録する</button>';
+    return '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid #f5f5f0;">'
+      +'<div style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:'+iconBg+';">'+def.icon+'</div>'
+      +'<div style="flex:1;"><div style="font-size:14px;font-weight:500;">'+def.label+'</div>'+dateHtml+'</div>'
+      +btnHtml+'</div>';
+  }).join('');
+  msEl.querySelectorAll('button[data-evtype]').forEach(function(btn){
+    btn.addEventListener('click',function(){openGrowthModalFor(btn.dataset.evtype);});
+  });
+
+  var sorted=evs.slice().sort(function(a,b){return a.date<b.date?1:-1;});
+  var tlContent='<div class="tl-line"></div>';
+  if(sorted.length){
+    sorted.forEach(function(e){
+      var def=GEV_DEF[e.type]||{label:e.type,icon:'📝'};
+      var dAgo=daysBetween(e.date,today());
+      var dAgoStr=dAgo===0?' ・ 今日':dAgo>0?' ・ '+dAgo+'日前':'';
+      var noteHtml=e.note?'<div style="font-size:12px;color:#888;margin-top:1px;">'+e.note+'</div>':'';
+      tlContent+='<div style="position:relative;padding:0 0 0.875rem 1rem;">'
+        +'<div class="tl-dot"></div>'
+        +'<div style="font-size:11px;color:#aaa;">'+e.date+dAgoStr+'</div>'
+        +'<div style="font-size:14px;font-weight:500;margin-top:1px;">'+def.icon+' '+def.label+'</div>'
+        +noteHtml+'</div>';
+    });
+  } else {
+    tlContent+='<div style="font-size:13px;color:#aaa;padding:0.5rem 0 1rem;padding-left:1rem;">まだ記録がありません</div>';
+  }
+  document.getElementById('growth-timeline').innerHTML=tlContent;
+}
+
+function openGrowthModal(){
+  document.getElementById('gev-type').value='first_flower';
+  document.getElementById('gev-date').value=today();
+  document.getElementById('gev-note').value='';
+  onGevTypeChange();
+  document.getElementById('growth-modal').style.display='flex';
+}
+function openGrowthModalFor(type){
+  document.getElementById('gev-type').value=type;
+  document.getElementById('gev-date').value=today();
+  document.getElementById('gev-note').value='';
+  onGevTypeChange();
+  document.getElementById('growth-modal').style.display='flex';
+}
+function onGevTypeChange(){
+  var t=document.getElementById('gev-type').value;
+  var crop=db.crops.find(function(c){return String(c.id)===String(currentGrowthCropId);});
+  var ti=crop?getTempInfo(crop.name):null;
+  document.getElementById('gev-flower-hint').style.display=(t==='first_flower'&&ti)?'block':'none';
+}
+
+function saveGrowthEvent(){
+  var type=document.getElementById('gev-type').value;
+  var date=document.getElementById('gev-date').value;
+  var note=document.getElementById('gev-note').value;
+  if(!date) return;
+  var evs=getGrowthEvents();
+  var def=GEV_DEF[type];
+  if(def&&def.milestone){
+    evs=evs.filter(function(e){return!(String(e.cropId)===String(currentGrowthCropId)&&e.type===type);});
+  }
+  var obj={id:newId(),cropId:currentGrowthCropId,type:type,date:date,note:note};
+  evs.push(obj);
+  saveGrowthEventsLocal(evs);
+  setSyncStatus('保存中...', false);
+  api({action:'append',sheet:'growth',data:obj}).then(function(){
+    setSyncStatus('保存完了 ✓', false);
+  }).catch(function(){ setSyncStatus('ローカル保存済み', false); });
+  closeModal('growth-modal');
+  renderGrowthDetail();
+}
+
+// ======== 起動 ========
+document.getElementById('log-date').value=today();
+loadAll();
+fetchWeather();
+</script>
+</body>
+</html>
