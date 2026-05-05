@@ -319,6 +319,15 @@ function today() {
   var d = new Date();
   return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
 }
+function formatDate(val) {
+  if (!val) return '';
+  var s = String(val);
+  if (s.indexOf('T') >= 0 || s.indexOf('Z') >= 0) {
+    var d = new Date(s);
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+  }
+  return s.slice(0, 10);
+}
 function pad(n){ return String(n).padStart(2,'0'); }
 function dateStr(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
 function newId(){ return Date.now(); }
@@ -376,8 +385,7 @@ function renderCrops() {
       + '<div style="width:38px;height:38px;border-radius:50%;background:#f0f7f3;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + (c.icon||'🌿') + '</div>'
       + '<div style="flex:1;min-width:0;">'
       + '<div style="font-size:15px;font-weight:600;">' + c.name + '</div>'
-      + '<div style="font-size:12px;color:#888;margin-top:2px;">' + (c.note||'') + ' ・ 定植から' + days + '日</div>'
-      + '<div style="font-size:12px;color:#d4870a;margin-top:1px;">積算日照 ' + sunStr + '</div>'
+      + '<div style="font-size:12px;color:#888;margin-top:2px;">' + (c.note||'') + (days !== '-' ? ' ・ 定植から' + days + '日' : '') + '</div>'
       + '</div>'
       + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">'
       + '<button data-cid="' + c.id + '" data-action="status" data-next="' + stNext[c.status||'ok'] + '" class="chip ' + (stClass[c.status]||'chip-ok') + '" style="cursor:pointer;border:none;">' + (stLabel[c.status]||'順調') + '</button>'
@@ -468,7 +476,7 @@ function renderLog() {
   el.innerHTML = filtered.map(function(l){
     return '<div class="card" style="display:flex;gap:0.75rem;align-items:center;padding:0.75rem 1rem;">'
       + '<div style="flex:1;"><div style="font-size:14px;font-weight:500;">' + (tl[l.type]||l.type) + ' — ' + getCropName(l.crop) + '</div>'
-      + '<div style="font-size:12px;color:#888;margin-top:3px;">' + l.date + (l.note?' · '+l.note:'') + '</div></div>'
+      + '<div style="font-size:12px;color:#888;margin-top:3px;">' + formatDate(l.date) + (l.note?' · '+l.note:'') + '</div></div>'
       + '<button data-lid="' + l.id + '" data-action="dellog" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;flex-shrink:0;padding:4px;">削除</button>'
       + '</div>';
   }).join('');
@@ -597,7 +605,7 @@ function renderCalendar() {
         +'<div style="display:flex;align-items:center;justify-content:space-between;">'
         +'<div>'
         +'<div style="font-size:14px;font-weight:600;">'+cropIcon+' '+cropName2+' × '+a.name+'</div>'
-        +'<div style="font-size:12px;color:#888;margin-top:2px;">'+a.date+' 散布 · '+endStr+'まで収穫NG</div>'
+        +'<div style="font-size:12px;color:#888;margin-top:2px;">'+formatDate(a.date)+' 散布 · '+endStr+'まで収穫NG</div>'
         +'</div>'
         +'<div style="font-size:14px;font-weight:700;color:#c94040;">残り'+remain+'日</div>'
         +'</div>'
@@ -628,7 +636,7 @@ function renderCalendar() {
         +'<div style="font-size:20px;">'+cropIcon+'</div>'
         +'<div style="flex:1;">'
         +'<div style="font-size:14px;font-weight:500;">🚿 '+a.name+'</div>'
-        +'<div style="font-size:12px;color:#888;">'+cropName2+' · '+a.date+' '+endStr+'</div>'
+        +'<div style="font-size:12px;color:#888;">'+cropName2+' · '+formatDate(a.date)+' '+endStr+'</div>'
         +'</div></div>';
     }).join('');
   } else {
@@ -640,7 +648,7 @@ function renderCalendar() {
   var planEl = document.getElementById('plan-list');
   planEl.innerHTML=db.plans.slice().sort(function(a,b){return a.date>b.date?1:-1;}).map(function(p){
     return '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid #f0f0ea;">'
-      +'<div style="font-size:12px;color:#aaa;min-width:38px;">'+p.date.slice(5)+'</div>'
+      +'<div style="font-size:12px;color:#aaa;min-width:38px;">'+formatDate(p.date).slice(5)+'</div>'
       +'<div style="flex:1;font-size:14px;">'+p.text+'</div>'
       +'<span class="chip '+bc[p.type]+'">'+tl2[p.type]+'</span>'
       +'<button data-pid="'+p.id+'" data-action="delplan" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;flex-shrink:0;padding:4px;">削除</button>'
@@ -797,7 +805,7 @@ function renderPest() {
     return '<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'
       +'<div style="font-size:14px;font-weight:600;">'+p.name+'</div>'
       +'<div style="display:flex;align-items:center;gap:8px;">'
-      +'<div style="font-size:11px;color:#aaa;">'+p.date+'</div>'
+      +'<div style="font-size:11px;color:#aaa;">'+formatDate(p.date)+'</div>'
       +'<button data-pestid="'+p.id+'" data-action="delpest" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;">削除</button>'
       +'</div></div>'
       +'<div style="font-size:12px;color:#888;">'+getCropName(p.crop)+'</div>'
@@ -844,7 +852,7 @@ function renderPest() {
     if(g.records.length>1){
       histHtml='<details style="margin-top:8px;"><summary style="font-size:12px;color:#aaa;cursor:pointer;">散布履歴 全'+g.records.length+'回</summary>';
       g.records.slice().sort(function(a,b){return a.date>b.date?-1:1;}).forEach(function(r){
-        histHtml+='<div style="font-size:12px;color:#888;padding:3px 0 0 4px;">'+r.date+(r.note?' · '+r.note:'')+'</div>';
+        histHtml+='<div style="font-size:12px;color:#888;padding:3px 0 0 4px;">'+formatDate(r.date)+(r.note?' · '+r.note:'')+'</div>';
       });
       histHtml+='</details>';
     }
@@ -856,7 +864,7 @@ function renderPest() {
       +'<span class="chip '+countChip+'">'+countLabel+'</span>'
       +'<button data-agriids="'+g.records.map(function(r){return r.id;}).join(',')+'" data-action="delagri" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;">全削除</button>'
       +'</div></div>'
-      +'<div style="font-size:12px;color:#555;">最終散布：'+latest.date+(latest.note?' · '+latest.note:'')+'</div>'
+      +'<div style="font-size:12px;color:#555;">最終散布：'+formatDate(latest.date)+(latest.note?' · '+latest.note:'')+'</div>'
       +histHtml+'</div>';
   }).join('') || '<div style="font-size:13px;color:#aaa;padding:0.5rem 0;">農薬使用記録はありません</div>';
 
@@ -1025,36 +1033,50 @@ function renderGrowthDetail(){
   if(ti&&flowerEv){
     sec.style.display='block';
     document.getElementById('growth-temp-title').textContent='積算温度（'+ti.stageLabel+' / harvest-timer.com参照）';
-    var acc=0, daysMissing=0;
-    var start=new Date(flowerEv.date), end=new Date(today());
-    for(var d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
-      var ds=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-      var sl=db.sunlogs.find(function(s){return s.date===ds;});
-      var t=sl&&sl.avg_temp?Number(sl.avg_temp):null;
-      if(t!==null){acc+=t;}else{acc+=20;daysMissing++;}
-    }
-    acc=Math.round(acc);
-    var pct=Math.min(100,Math.round(acc/ti.high*100));
-    var remain=Math.max(0,ti.low-acc);
-    var elapsed=daysBetween(flowerEv.date,today())+1;
-    var avg=acc/elapsed;
-    document.getElementById('growth-temp-acc').textContent=acc.toLocaleString()+'°C';
-    document.getElementById('growth-temp-range').textContent='目標 '+ti.low.toLocaleString()+'〜'+ti.high.toLocaleString()+'°C';
-    document.getElementById('growth-temp-pct').textContent=pct+'%';
-    document.getElementById('growth-temp-bar').style.width=pct+'%';
-    var missingNote=daysMissing>0?' ※'+daysMissing+'日分は暫定値(20°C)':'';
-    var fb=document.getElementById('growth-forecast');
-    if(acc>=ti.low){
-      document.getElementById('growth-temp-msg').textContent='✓ 積算'+ti.low.toLocaleString()+'°C達成！収穫適期です'+missingNote;
-      fb.style.display='none';
-    } else {
-      document.getElementById('growth-temp-msg').textContent=ti.stageLabel+elapsed+'日経過 ・ 平均'+avg.toFixed(1)+'°C/日'+missingNote;
-      var dLeft=Math.ceil(remain/avg);
-      var fd=new Date(); fd.setDate(fd.getDate()+dLeft);
-      fb.style.display='block';
-      fb.innerHTML='収穫予想：あと約'+dLeft+'日（'+fd.toLocaleDateString('ja-JP',{month:'long',day:'numeric'})+'ごろ）<br>'
-        +'<span style="font-size:11px;color:#aaa;">残り約'+remain.toLocaleString()+'°C</span>';
-    }
+    document.getElementById('growth-temp-msg').textContent='気温データを取得中...';
+    document.getElementById('growth-temp-acc').textContent='--°C';
+    document.getElementById('growth-temp-pct').textContent='--%';
+    document.getElementById('growth-temp-bar').style.width='0%';
+    document.getElementById('growth-forecast').style.display='none';
+    var startDate=flowerEv.date;
+    var endDate=today();
+    var url='https://api.open-meteo.com/v1/forecast'
+      +'?latitude=36.0809&longitude=140.2050'
+      +'&daily=temperature_2m_max,temperature_2m_min'
+      +'&start_date='+startDate+'&end_date='+endDate
+      +'&timezone=Asia%2FTokyo';
+    fetch(url).then(function(r){ return r.json(); }).then(function(data){
+      var dd=data.daily;
+      var acc=0;
+      for(var i=0;i<dd.time.length;i++){
+        var tMax=dd.temperature_2m_max[i];
+        var tMin=dd.temperature_2m_min[i];
+        if(tMax!==null&&tMin!==null) acc+=(tMax+tMin)/2;
+      }
+      acc=Math.round(acc);
+      var elapsed=dd.time.length;
+      var avg=elapsed>0?acc/elapsed:20;
+      var pct=Math.min(100,Math.round(acc/ti.high*100));
+      var remain=Math.max(0,ti.low-acc);
+      document.getElementById('growth-temp-acc').textContent=acc.toLocaleString()+'°C';
+      document.getElementById('growth-temp-range').textContent='目標 '+ti.low.toLocaleString()+'〜'+ti.high.toLocaleString()+'°C';
+      document.getElementById('growth-temp-pct').textContent=pct+'%';
+      document.getElementById('growth-temp-bar').style.width=pct+'%';
+      var fb=document.getElementById('growth-forecast');
+      if(acc>=ti.low){
+        document.getElementById('growth-temp-msg').textContent='✓ 積算'+ti.low.toLocaleString()+'°C達成！収穫適期です';
+        fb.style.display='none';
+      } else {
+        document.getElementById('growth-temp-msg').textContent=ti.stageLabel+elapsed+'日経過 ・ 平均'+avg.toFixed(1)+'°C/日';
+        var dLeft=Math.ceil(remain/avg);
+        var fd=new Date(); fd.setDate(fd.getDate()+dLeft);
+        fb.style.display='block';
+        fb.innerHTML='収穫予想：あと約'+dLeft+'日（'+fd.toLocaleDateString('ja-JP',{month:'long',day:'numeric'})+'ごろ）<br>'
+          +'<span style="font-size:11px;color:#aaa;">残り約'+remain.toLocaleString()+'°C（Open-Meteo実績値）</span>';
+      }
+    }).catch(function(){
+      document.getElementById('growth-temp-msg').textContent='気温データの取得に失敗しました';
+    });
   } else {
     sec.style.display='none';
   }
@@ -1069,7 +1091,7 @@ function renderGrowthDetail(){
     var daysHtml=dFromPlant!==null?'<div style="font-size:12px;color:#2a7a5a;margin-top:1px;">定植から'+dFromPlant+'日目</div>':'';
     var dateHtml=ev?'<div style="font-size:12px;color:#888;margin-top:1px;">'+ev.date+(ev.note?' ・ '+ev.note:'')+'</div>'+daysHtml:'<div style="font-size:12px;color:#ccc;margin-top:1px;">未記録</div>';
     var btnHtml=ev
-      ? '<button data-evid="'+ev.id+'" data-evtype="'+type+'" data-action="delms" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;padding:2px 4px;">削除</button>'
+      ? '<button data-evid="'+ev.id+'" data-action="delms" style="font-size:11px;color:#c94040;background:none;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;padding:2px 4px;">削除</button>'
       : '<button data-evtype="'+type+'" style="font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid #e0e0d8;background:#fff;color:#555;cursor:pointer;white-space:nowrap;flex-shrink:0;">記録する</button>';
     return '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid #f5f5f0;">'
       +'<div style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:'+iconBg+';">'+def.icon+'</div>'
@@ -1099,7 +1121,7 @@ function renderGrowthDetail(){
       var noteHtml=e.note?'<div style="font-size:12px;color:#888;margin-top:1px;">'+e.note+'</div>':'';
       tlContent+='<div style="position:relative;padding:0 0 0.875rem 1rem;">'
         +'<div class="tl-dot"></div>'
-        +'<div style="font-size:11px;color:#aaa;">'+e.date+dAgoStr+'</div>'
+        +'<div style="font-size:11px;color:#aaa;">'+formatDate(e.date)+dAgoStr+'</div>'
         +'<div style="font-size:14px;font-weight:500;margin-top:1px;">'+def.icon+' '+def.label+'</div>'
         +noteHtml+'</div>';
     });
