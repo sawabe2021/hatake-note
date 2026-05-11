@@ -304,6 +304,10 @@ function loadAll() {
     db.pests   = data.pests   || [];
     db.agris   = data.agris   || [];
     db.sunlogs = data.sunlogs || [];
+    // 生育イベントをスプレッドシートから読み込んでlocalStorageに上書き同期
+    if (data.growth && data.growth.length > 0) {
+      saveGrowthEventsLocal(data.growth);
+    }
     setSyncStatus('同期済み ✓', false);
     renderAll();
   }).catch(function() { setSyncStatus('オフライン', true); });
