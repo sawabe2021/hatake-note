@@ -554,6 +554,15 @@ function renderCalendar() {
   db.logs.forEach(function(l){
     if(l.type==='water') waterDates.add(l.date);
   });
+  // 施肥リマインダー（施肥の14日後）
+var fertReminderDates = new Set();
+db.logs.forEach(function(l){
+  if (l.type === 'fert') {
+    var d = new Date(l.date);
+    d.setDate(d.getDate() + 14);
+    fertReminderDates.add(dateStr(d));
+  }
+});
   // 農薬散布日 → {date: [{cropIcon, agriShort}]}
   var agriByDate={};
   db.agris.forEach(function(a){
@@ -578,6 +587,8 @@ function renderCalendar() {
     if(hasPlan&&!isBan) dots+='<div class="cal-dot"></div>';
     if(hasWater) dots+='<div style="width:4px;height:4px;border-radius:50%;background:#378ADD;position:absolute;bottom:3px;left:calc(50% - 5px);transform:translateX(-50%);"></div>';
     html+='<div class="'+cls+'">'+d+dots+'</div>';
+    if (fertReminderDates.has(ds)) {
+  dots += '<div style="width:4px;height:4px;border-radius:50%;background:#639922;position:absolute;bottom:3px;right:4px;"></div>';
   }
   document.getElementById('cal-days').innerHTML=html;
 
