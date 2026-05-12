@@ -558,7 +558,7 @@ function renderCalendar() {
 var fertReminderDates = new Set();
 db.logs.forEach(function(l){
   if (l.type === 'fert') {
-    var d = new Date(l.date);
+    var d = new Date(formatDate(l.date));
     d.setDate(d.getDate() + 14);
     fertReminderDates.add(dateStr(d));
   }
