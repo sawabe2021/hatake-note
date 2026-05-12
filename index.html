@@ -636,8 +636,10 @@ db.logs.forEach(function(l){
   document.getElementById('cal-legend').innerHTML=
     '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#888;margin-bottom:0.4rem;">'
     +'<div style="width:8px;height:8px;border-radius:50%;background:#378ADD;flex-shrink:0;"></div>水やり</div>'
+    +'<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#888;margin-bottom:0.4rem;">'
+    +'<div style="width:14px;height:14px;background:#fdeaea;border-radius:3px;border:1px solid #f09595;flex-shrink:0;"></div>収穫NG期間</div>'
     +'<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#888;margin-bottom:0.6rem;">'
-    +'<div style="width:14px;height:14px;background:#fdeaea;border-radius:3px;border:1px solid #f09595;flex-shrink:0;"></div>収穫NG期間</div>';
+    +'<div style="width:8px;height:8px;border-radius:50%;background:#639922;flex-shrink:0;"></div>施肥タイミング（14日後）</div>';
 
   // 農薬散布ログ（カレンダー月内）
   var agriLogEl=document.getElementById('agri-log-list');
