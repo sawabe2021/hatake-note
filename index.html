@@ -586,9 +586,10 @@ db.logs.forEach(function(l){
     var dots='';
     if(hasPlan&&!isBan) dots+='<div class="cal-dot"></div>';
     if(hasWater) dots+='<div style="width:4px;height:4px;border-radius:50%;background:#378ADD;position:absolute;bottom:3px;left:calc(50% - 5px);transform:translateX(-50%);"></div>';
+    if (fertReminderDates.has(ds)) {                // ← 先にdots追加
+      dots += '<div style="width:4px;height:4px;border-radius:50%;background:#639922;position:absolute;bottom:3px;right:4px;"></div>';
+    }
     html+='<div class="'+cls+'">'+d+dots+'</div>';
-    if (fertReminderDates.has(ds)) {
-  dots += '<div style="width:4px;height:4px;border-radius:50%;background:#639922;position:absolute;bottom:3px;right:4px;"></div>';
   }
     }
   document.getElementById('cal-days').innerHTML=html;
