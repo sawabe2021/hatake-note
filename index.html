@@ -549,18 +549,26 @@ function renderCalendar() {
   var first=new Date(y,m,1).getDay(), last=new Date(y,m+1,0).getDate();
   var todayStr=today(), banDates=getBanDates();
 
+function onCalDayClick(el) {
+  var fert = el.dataset.fert;
+  if (fert) alert('🌿 施肥タイミング\n' + fert);
+}
+
   // 日ごとのログ集計（水やり・農薬）
   var waterDates=new Set();
   db.logs.forEach(function(l){
     if(l.type==='water') waterDates.add(l.date);
   });
   // 施肥リマインダー（施肥の14日後）
-var fertReminderDates = new Set();
+var fertReminderDates = new Map();
 db.logs.forEach(function(l){
   if (l.type === 'fert') {
     var d = new Date(formatDate(l.date));
     d.setDate(d.getDate() + 14);
-    fertReminderDates.add(dateStr(d));
+    var key = dateStr(d);
+    var cropName2 = getCropName(l.crop);
+    var existing = fertReminderDates.get(key);
+    fertReminderDates.set(key, existing ? existing + '・' + cropName2 : cropName2);
   }
 });
   // 農薬散布日 → {date: [{cropIcon, agriShort}]}
@@ -589,7 +597,8 @@ db.logs.forEach(function(l){
     if (fertReminderDates.has(ds)) { 
       dots += '<div style="width:4px;height:4px;border-radius:50%;background:#639922;position:absolute;bottom:3px;right:4px;"></div>';
     }
-    html+='<div class="'+cls+'">'+d+dots+'</div>';
+    var fertInfo = fertReminderDates.has(ds) ? fertReminderDates.get(ds) : '';
+    html+='<div class="'+cls+'" '+(fertInfo?'data-fert="'+fertInfo+'"':'')+' onclick="onCalDayClick(this)">'+d+dots+'</div>';
   }
   document.getElementById('cal-days').innerHTML=html;
 
