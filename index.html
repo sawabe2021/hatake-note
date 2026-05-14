@@ -521,6 +521,11 @@ function addLog() {
   }).catch(function(){ setSyncStatus('保存失敗', true); });
 }
 
+function onCalDayClick(el) {
+  var fert = el.dataset.fert;
+  if (fert) alert('🌿 施肥タイミング\n' + fert);
+}
+
 // ======== カレンダー ========
 function getBanDates() {
   // 農薬禁止期間の日付セットを返す
@@ -548,11 +553,6 @@ function renderCalendar() {
   document.getElementById('cal-labels').innerHTML = labels.map(function(l){ return '<div class="cal-label">'+l+'</div>'; }).join('');
   var first=new Date(y,m,1).getDay(), last=new Date(y,m+1,0).getDate();
   var todayStr=today(), banDates=getBanDates();
-
-function onCalDayClick(el) {
-  var fert = el.dataset.fert;
-  if (fert) alert('🌿 施肥タイミング\n' + fert);
-}
 
   // 日ごとのログ集計（水やり・農薬）
   var waterDates=new Set();
