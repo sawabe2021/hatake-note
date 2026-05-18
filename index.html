@@ -305,9 +305,18 @@ function loadAll() {
     db.agris   = data.agris   || [];
     db.sunlogs = data.sunlogs || [];
     // 生育イベントをスプレッドシートから読み込んでlocalStorageに上書き同期
-    if (data.growth && data.growth.length > 0) {
-      saveGrowthEventsLocal(data.growth);
-    }
+  if (data.growth && data.growth.length > 0) {
+  var growthEvs = data.growth.map(function(e){
+    return {
+      id: e.id,
+      cropId: e.cropId,
+      type: e.type,
+      date: formatDate(e.date),
+      note: e.note || ''
+    };
+  }).filter(function(e){ return e.id && e.cropId && e.type && e.date; });
+  if (growthEvs.length > 0) saveGrowthEventsLocal(growthEvs);
+}
     setSyncStatus('同期済み ✓', false);
     renderAll();
   }).catch(function() { setSyncStatus('オフライン', true); });
